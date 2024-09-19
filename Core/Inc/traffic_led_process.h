@@ -14,11 +14,7 @@ extern void init_traffic_process(void);
 extern void traffic_process(void);
 extern void auto_mode_process(void);
 
-void blink_led_red(void);
-void blink_led_yellow(void);
-void blink_led_green(void);
+void increase_led_counter(uint16_t* modifed_led);
 
-void increase_led_counter(void);
-void decrease_led_counter(void);
 
 #endif /* INC_TRAFFIC_LED_PROCESS_H_ */

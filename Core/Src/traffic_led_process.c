@@ -10,12 +10,16 @@
 #include "traffic_led_process.h"
 #include "led7seg_process.h"
 #include "physic.h"
-#include "button.c"
+#include "button.h"
+
+#define DEFAULT_RED 15;
+#define DEFAULT_YELLOW 3;
+#define DEFAULT_GREEN 12;
 
 
-#define DEFAULT_RED		15
-#define DEFAULT_YELLOW	3
-#define DEFAULT_GREEN	12
+uint16_t init_red = 15;
+uint16_t init_yellow = 3;
+uint16_t init_green = 12;
 
 uint16_t led_red1_counter;
 uint16_t led_red2_counter;
@@ -24,9 +28,13 @@ uint16_t led_yellow2_counter;
 uint16_t led_green1_counter;
 uint16_t led_green2_counter;
 
-uint16_t modify_led_counter = 0;
+
 
 unsigned char tempState = 0;
+unsigned char tempState1 = 0;
+unsigned char tempState2 = 0;
+uint16_t modify_led_counter = 0;
+uint8_t increase_freq  = 0;
 
 enum traffic_state {INIT_STATE, ERROR_STATE, AUTO_MODE, SETTING_RED_MODE, SETTING_YELLOW_MODE, SETTING_GREEN_MODE};
 enum traffic_state trafficState;
@@ -40,13 +48,22 @@ void init_traffic_process(void){
 	init_traffic_time();
 }
 
-void init_traffic_time(void){
+void set_default_traffic_time(void){
 	led_red1_counter = DEFAULT_RED;
 	led_red2_counter = DEFAULT_RED;
 	led_yellow1_counter = DEFAULT_YELLOW;
 	led_yellow2_counter = DEFAULT_YELLOW;
 	led_green1_counter = DEFAULT_GREEN;
 	led_green2_counter = DEFAULT_GREEN;
+}
+
+void init_traffic_time(void){
+	led_red1_counter = init_red;
+	led_red2_counter = init_red;
+	led_yellow1_counter = init_yellow;
+	led_yellow2_counter = init_yellow;
+	led_green1_counter = init_green;
+	led_green2_counter = init_green;
 
 }
 
@@ -138,61 +155,64 @@ void auto_mode_process(void){
 	}
 }
 
-void resetAllLed(void){
-	HAL_GPIO_WritePin(LED_RED1_GPIO_Port, LED_RED1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_RED2_GPIO_Port, LED_RED2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_YELLOW1_GPIO_Port, LED_YELLOW1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_YELLOW2_GPIO_Port, LED_YELLOW2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_GREEN1_GPIO_Port, LED_GREEN1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_GREEN2_GPIO_Port, LED_GREEN2_Pin, GPIO_PIN_RESET);
-
-	setLed7Seg(0, 0);
-	setLed7Seg(1, 0);
-	setLed7Seg(2, 0);
-	setLed7Seg(3, 0);
-
-}
-
-void blink_led_red(void){
-	if(timer1_flag){
-		HAL_GPIO_TogglePin(GPIOA, LED_RED1_Pin | LED_RED2_Pin);
-		setTimer1(50);
-	}
-}
-
-void blink_led_yellow(void){
-	if(timer1_flag){
-		HAL_GPIO_TogglePin(GPIOA, LED_YELLOW1_Pin | LED_YELLOW2_Pin);
-		setTimer1(50);
-	}
-}
-
-void blink_led_green(void){
-	if(timer1_flag){
-		HAL_GPIO_TogglePin(GPIOA, LED_GREEN1_Pin | LED_GREEN2_Pin);
-		setTimer1(50);
-	}
-}
-
 unsigned char check_error(){
 	return !(led_red1_counter == (led_yellow1_counter + led_green1_counter))
 			&& !(led_red2_counter == (led_yellow2_counter + led_green2_counter));
 }
 
-void increase_led_counter(void){
-	modify_led_counter = (modify_led_counter + 1) % 100;
-}
 
-void decrease_led_counter(void){
-	modify_led_counter = modify_led_counter >= 1 ? (modify_led_counter - 1) % 100 : 99;
+void increase_led_counter(uint16_t* modifed_led){
+	// push and release button 2 to increase the counter
+	if(is_button_press(1)){
+		tempState1 = 1;
+	}
+	if(tempState1 && !is_button_press(1)){
+		modify_led_counter = (modify_led_counter + 1) % 100;
+		tempState1 = 0;
+	}
+
+	// press button 2 to increase the counter every 0.5s
+
+	if(is_button_press1s(1)){
+		increase_freq = (increase_freq + 1) % 5;
+		if(!increase_freq){
+			modify_led_counter = (modify_led_counter + 1) % 100;
+		}
+	}
+
+	// press button 3 to set
+	if(is_button_press(2)){
+		tempState2 = 1;
+	}
+	if(tempState2 && !is_button_press(2)){
+		*modifed_led = modify_led_counter;
+		tempState2 = 0;
+	}
+
 }
 
 void traffic_process(void){
+
 	switch(trafficState){
 	case ERROR_STATE:{
+		// display if error come
+		turnOnAllLed();
+		test7seg();
+
+		if(is_button_press(0)){
+			tempState = 1;
+		}
+		if(tempState && !is_button_press(0)){
+			tempState = 0;
+
+			trafficState = INIT_STATE;
+		}
+
 		break;
 	}
 	case INIT_STATE:{
+		init_traffic_time();
+
 		if(check_error())
 			trafficState = ERROR_STATE;
 		else
@@ -205,22 +225,20 @@ void traffic_process(void){
 			setTimer3(100);
 		}
 
-
 		if(is_button_press(0)){
+			tempState = 1;
+		}
+		if(tempState && !is_button_press(0)){
+			tempState = 0;
+			modify_led_counter = 0;
 			trafficState = SETTING_RED_MODE;
 		}
+
 		break;
 	}
 	case SETTING_RED_MODE:{
-		resetAllLed();
-		blink_led_red();
-		modify_led_counter = led_red1_counter;
-
-		if(is_button_press(1)){
-			modify_led_counter = (modify_led_counter + 1) % 100;
-		}
-
-
+		turnOffAllLed();
+		blinkRed();
 
 		setLed7Seg(0, modify_led_counter / 10);
 		setLed7Seg(1, modify_led_counter % 10);
@@ -228,25 +246,22 @@ void traffic_process(void){
 		setLed7Seg(2, 0);
 		setLed7Seg(3, 1);
 
-		led_red1_counter = modify_led_counter;
-		led_red2_counter = modify_led_counter;
+		increase_led_counter(&init_red);
 
 		if(is_button_press(0)){
+			tempState = 1;
+		}
+		if(tempState && !is_button_press(0)){
+			tempState = 0;
+			modify_led_counter = 0;
 			trafficState = SETTING_GREEN_MODE;
 		}
 
 		break;
 	}
 	case SETTING_GREEN_MODE:{
-		resetAllLed();
-		blink_led_green();
-		modify_led_counter = led_green1_counter;
-
-
-
-		if(is_button_press(1)){
-			modify_led_counter = (modify_led_counter + 1) % 100;
-		}
+		turnOffAllLed();
+		blinkGreen();
 
 
 		setLed7Seg(0, modify_led_counter / 10);
@@ -255,25 +270,21 @@ void traffic_process(void){
 		setLed7Seg(2, 0);
 		setLed7Seg(3, 2);
 
-		led_green1_counter = modify_led_counter;
-		led_green2_counter = modify_led_counter;
+		increase_led_counter(&init_green);
 
 		if(is_button_press(0)){
+			tempState = 1;
+		}
+		if(tempState && !is_button_press(0)){
+			tempState = 0;
+			modify_led_counter = 0;
 			trafficState = SETTING_YELLOW_MODE;
 		}
 		break;
 	}
 	case SETTING_YELLOW_MODE:{
-		resetAllLed();
-		blink_led_yellow();
-		modify_led_counter = led_yellow1_counter;
-
-
-
-		if(is_button_press(1)){
-			modify_led_counter = (modify_led_counter + 1) % 100;
-		}
-
+		turnOffAllLed();
+		blinkYellow();
 
 		setLed7Seg(0, modify_led_counter / 10);
 		setLed7Seg(1, modify_led_counter % 10);
@@ -281,10 +292,14 @@ void traffic_process(void){
 		setLed7Seg(2, 0);
 		setLed7Seg(3, 3);
 
-		led_yellow1_counter = modify_led_counter;
-		led_yellow2_counter = modify_led_counter;
+		increase_led_counter(&init_yellow);
 
 		if(is_button_press(0)){
+			tempState = 1;
+		}
+		if(tempState && !is_button_press(0)){
+			tempState = 0;
+			modify_led_counter = 0;
 			trafficState = INIT_STATE;
 		}
 

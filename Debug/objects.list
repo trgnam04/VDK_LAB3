@@ -9,7 +9,6 @@
 "./Core/Src/sysmem.o"
 "./Core/Src/system_stm32f1xx.o"
 "./Core/Src/traffic_led_process.o"
-"./Core/Src/traffic_process_fsm.o"
 "./Core/Startup/startup_stm32f103c6tx.o"
 "./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o"
 "./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o"

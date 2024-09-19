@@ -99,7 +99,7 @@ int main(void)
   init_traffic_process();
   setTimer3(100);
   setTimer1(50);
-  setTimer2(1);
+  setTimer2(10);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -114,6 +114,7 @@ int main(void)
 		  Led7Seg_Scanning();
 		  setTimer2(10);
 	  }
+
 
 
 
