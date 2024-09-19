@@ -1,0 +1,4 @@
+../Core/Src/led7seg_process.c:28:6:initLed7Seg	1
+../Core/Src/led7seg_process.c:32:6:setLed7Seg	1
+../Core/Src/led7seg_process.c:36:6:Led7Seg_Scanning	5
+../Core/Src/led7seg_process.c:81:6:setLed7Seg_process	1

@@ -1,0 +1,15 @@
+../Core/Src/button.c:28:6:button_reading	16	static
+../Core/Src/button.c:54:6:updateButtonState	24	static
+../Core/Src/button.c:74:15:is_button_press	16	static
+../Core/Src/button.c:79:15:is_button_press1s	16	static
+../Core/Src/traffic_led_process.c:37:6:init_traffic_process	8	static
+../Core/Src/traffic_led_process.c:43:6:init_traffic_time	4	static
+../Core/Src/traffic_led_process.c:53:6:auto_mode_process	8	static
+../Core/Src/traffic_led_process.c:141:6:resetAllLed	8	static
+../Core/Src/traffic_led_process.c:156:6:blink_led_red	8	static
+../Core/Src/traffic_led_process.c:163:6:blink_led_yellow	8	static
+../Core/Src/traffic_led_process.c:170:6:blink_led_green	8	static
+../Core/Src/traffic_led_process.c:177:15:check_error	4	static
+../Core/Src/traffic_led_process.c:182:6:increase_led_counter	4	static
+../Core/Src/traffic_led_process.c:186:6:decrease_led_counter	4	static
+../Core/Src/traffic_led_process.c:190:6:traffic_process	8	static

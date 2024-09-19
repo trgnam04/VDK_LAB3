@@ -1,0 +1,4 @@
+../Core/Src/button.c:28:6:button_reading	5
+../Core/Src/button.c:54:6:updateButtonState	5
+../Core/Src/button.c:74:15:is_button_press	2
+../Core/Src/button.c:79:15:is_button_press1s	2

@@ -1,0 +1,10 @@
+../Core/Src/physic.c:12:13:turnOnAllLed	8	static
+../Core/Src/physic.c:17:13:turnOffAllLed	8	static
+../Core/Src/physic.c:22:6:test7seg	8	static
+../Core/Src/physic.c:29:6:testAllLed	8	static
+../Core/Src/physic.c:37:6:turnOnRed	16	static
+../Core/Src/physic.c:49:6:turnOnYellow	16	static
+../Core/Src/physic.c:61:6:turnOnGreen	16	static
+../Core/Src/physic.c:73:6:blinkRed	8	static
+../Core/Src/physic.c:80:6:blinkYellow	8	static
+../Core/Src/physic.c:87:6:blinkGreen	8	static
