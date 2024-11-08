@@ -8,6 +8,9 @@
 #ifndef INC_SOFTWARE_TIMER_H_
 #define INC_SOFTWARE_TIMER_H_
 
+#include "button.h"
+#include "main.h"
+
 #define TIMER_CYCLE_1 1
 #define TIMER_CYCLE_2 1
 #define TIMER_CYCLE_3 1

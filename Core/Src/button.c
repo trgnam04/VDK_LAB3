@@ -5,7 +5,6 @@
  *      Author: ASUS
  */
 
-#include "main.h"
 #include "button.h"
 
 #define NO_OF_BUTTON 3

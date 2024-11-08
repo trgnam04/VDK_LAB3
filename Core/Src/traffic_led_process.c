@@ -5,46 +5,45 @@
  *      Author: ASUS
  */
 
-#include "main.h"
-#include "software_timer.h"
 #include "traffic_led_process.h"
-#include "led7seg_process.h"
-#include "physic.h"
-#include "button.h"
 
 #define DEFAULT_RED 15;
 #define DEFAULT_YELLOW 3;
 #define DEFAULT_GREEN 12;
 
 
-uint16_t init_red = 15;
-uint16_t init_yellow = 3;
-uint16_t init_green = 12;
+static uint16_t init_red = 15;
+static uint16_t init_yellow = 3;
+static uint16_t init_green = 12;
 
-uint16_t led_red1_counter;
-uint16_t led_red2_counter;
-uint16_t led_yellow1_counter;
-uint16_t led_yellow2_counter;
-uint16_t led_green1_counter;
-uint16_t led_green2_counter;
+static uint16_t led_red1_counter;
+static uint16_t led_red2_counter;
+static uint16_t led_yellow1_counter;
+static uint16_t led_yellow2_counter;
+static uint16_t led_green1_counter;
+static uint16_t led_green2_counter;
 
 
 
-unsigned char tempState = 0;
-unsigned char tempState1 = 0;
-unsigned char tempState2 = 0;
-uint16_t modify_led_counter = 0;
-uint8_t increase_freq  = 0;
+static unsigned char tempState = 0;
+static unsigned char tempState1 = 0;
+static unsigned char tempState2 = 0;
+static uint16_t modify_led_counter = 0;
+static uint8_t increase_freq  = 0;
 
-enum traffic_state {INIT_STATE, ERROR_STATE, AUTO_MODE, SETTING_RED_MODE, SETTING_YELLOW_MODE, SETTING_GREEN_MODE};
-enum traffic_state trafficState;
+enum traffic_state {INIT_STATE, ERROR_STATE, AUTO_MODE, SETTING_RED_MODE, SETTING_YELLOW_MODE, SETTING_GREEN_MODE, MANUAL_MODE};
+static enum traffic_state trafficState;
 
 enum traffic_phase {INIT_PHASE, PHASE1, PHASE2, PHASE3, PHASE4};
-enum traffic_phase trafficPhase;
+static enum traffic_phase trafficPhase;
+
+enum manual_state{INIT, S1, S2};
+static enum manual_state manualState;
 
 void init_traffic_process(void){
 	trafficState = INIT_STATE;
 	trafficPhase = INIT_PHASE;
+	manualState = INIT;
 	init_traffic_time();
 }
 
@@ -155,6 +154,44 @@ void auto_mode_process(void){
 	}
 }
 
+void manual_mode_process(void){
+	switch(manualState){
+	case INIT:{
+		manualState = S1;
+		break;
+	}
+	case S1:{
+		turnOnGreen(1);
+		turnOnRed(2);
+
+		if(is_button_press(2)){
+			tempState2 = 1;
+		}
+		if(tempState2 == 1 && !is_button_press(2)){
+			tempState2 = 0;
+			manualState = S2;
+		}
+
+		break;
+	}
+	case S2:{
+		turnOnGreen(2);
+		turnOnRed(1);
+
+
+		if(is_button_press(2)){
+			tempState2 = 1;
+		}
+		if(tempState2 && !is_button_press(2)){
+			tempState2 = 0;
+			manualState = S1;
+		}
+		break;
+	}
+	}
+
+}
+
 unsigned char check_error(){
 	return !(led_red1_counter == (led_yellow1_counter + led_green1_counter))
 			&& !(led_red2_counter == (led_yellow2_counter + led_green2_counter));
@@ -199,13 +236,14 @@ void traffic_process(void){
 		turnOnAllLed();
 		test7seg();
 
+		// press and release button 0 to return auto mode with default traffic time
 		if(is_button_press(0)){
 			tempState = 1;
 		}
 		if(tempState && !is_button_press(0)){
 			tempState = 0;
-
-			trafficState = INIT_STATE;
+			init_traffic_time();
+			trafficState = AUTO_MODE;
 		}
 
 		break;
@@ -225,6 +263,8 @@ void traffic_process(void){
 			setTimer3(100);
 		}
 
+
+		// press and release button to change state
 		if(is_button_press(0)){
 			tempState = 1;
 		}
@@ -248,6 +288,8 @@ void traffic_process(void){
 
 		increase_led_counter(&init_red);
 
+
+		// press and release button to change state
 		if(is_button_press(0)){
 			tempState = 1;
 		}
@@ -272,6 +314,8 @@ void traffic_process(void){
 
 		increase_led_counter(&init_green);
 
+
+		// press and release button to change state
 		if(is_button_press(0)){
 			tempState = 1;
 		}
@@ -294,15 +338,30 @@ void traffic_process(void){
 
 		increase_led_counter(&init_yellow);
 
+
+		// press and release button to change state
 		if(is_button_press(0)){
 			tempState = 1;
 		}
 		if(tempState && !is_button_press(0)){
 			tempState = 0;
 			modify_led_counter = 0;
-			trafficState = INIT_STATE;
+			trafficState = MANUAL_MODE;
 		}
 
+		break;
+	}
+	case MANUAL_MODE:{
+		manual_mode_process();
+
+
+		if(is_button_press(0)){
+			tempState = 1;
+		}
+		if(tempState && !is_button_press(0)){
+			tempState = 0;
+			trafficState = INIT_STATE;
+		}
 		break;
 	}
 	}

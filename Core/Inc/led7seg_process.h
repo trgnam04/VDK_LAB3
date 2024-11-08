@@ -8,6 +8,8 @@
 #ifndef INC_LED7SEG_PROCESS_H_
 #define INC_LED7SEG_PROCESS_H_
 
+#include "main.h"
+#include <string.h>
 
 
 extern void initLed7Seg(void);

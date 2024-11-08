@@ -4,13 +4,11 @@
  *  Created on: Sep 10, 2024
  *      Author: ASUS
  */
-#include "main.h"
-#include <string.h>
 #include "led7seg_process.h"
 
-uint8_t counter = 0;
-uint8_t led7seg_buffer[4];
-const uint8_t LED7SEG_CODES[10] = {
+static uint8_t counter = 0;
+static uint8_t led7seg_buffer[4];
+static const uint8_t LED7SEG_CODES[10] = {
     0b00111111, // 0: A, B, C, D, E, F
     0b00000110, // 1: B, C
     0b01011011, // 2: A, B, D, E, G

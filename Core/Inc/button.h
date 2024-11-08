@@ -8,6 +8,7 @@
 #ifndef INC_BUTTON_H_
 #define INC_BUTTON_H_
 
+#include "main.h"
 #include <stdint.h>
 
 extern void button_reading(void);

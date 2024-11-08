@@ -8,6 +8,11 @@
 #ifndef INC_PHYSIC_H_
 #define INC_PHYSIC_H_
 
+#include "main.h"
+#include "software_timer.h"
+#include "led7seg_process.h"
+
+
 extern void turnOnRed(uint8_t index);
 extern void turnOnYellow(uint8_t index);
 extern void turnOnGreen(uint8_t index);

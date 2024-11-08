@@ -8,6 +8,12 @@
 #ifndef INC_TRAFFIC_LED_PROCESS_H_
 #define INC_TRAFFIC_LED_PROCESS_H_
 
+#include "main.h"
+#include "software_timer.h"
+#include "led7seg_process.h"
+#include "physic.h"
+#include "button.h"
+
 
 void init_traffic_time(void);
 extern void init_traffic_process(void);

@@ -5,9 +5,7 @@
  *      Author: ASUS
  */
 
-#include "main.h"
-#include "software_timer.h"
-#include "led7seg_process.h"
+#include "physic.h"
 
 extern void turnOnAllLed(void){
 	HAL_GPIO_WritePin(GPIOA, LED_RED1_Pin | LED_RED2_Pin | LED_GREEN1_Pin | LED_GREEN2_Pin |
